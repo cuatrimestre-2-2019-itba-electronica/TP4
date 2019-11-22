@@ -1,0 +1,4 @@
+http://troydhanson.github.com/uthash/ //buffer circular nuevo
+https://www.codementor.io/michaelsafyan/object-oriented-programming-in-c-du1081gw2 //modelo de programacion orientada a objetos en C
+timer.h y timer.c : Ejemplo de MCAL visto en clase. Autor: Nicolás Magliola
+Polimorfismo mediante uniones y encapsulamiento mediante punteros a tipos incompletos: basado en libreria grafica Allegro.
