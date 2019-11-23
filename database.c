@@ -146,8 +146,8 @@ static hash_t BKDRHash(const char* str, unsigned int length)
 
 void database_populate(){
 	uint8_t ID[] = {4,5,1,7,6,6,0,1};
-	uint8_t PIN[] = {4,5,9,8};
-	database_append(database_get_hash(ID, 8), database_get_hash(PIN,3));
+	uint8_t PIN[] = {1,2,3,4,5};
+	database_append(database_get_hash(ID, 8), database_get_hash(PIN,5));
 	uint8_t ID1[] = {3,7,6,6,3,6,4,5};
 	uint8_t PIN1[] = {3,2,3,2};
 	database_append(database_get_hash(ID1, 8), database_get_hash(PIN1,4));

@@ -2,36 +2,33 @@
 #include "hardware.h"
 #include "board.h"
 #include "gpio.h"
-
+#include "PIT.h"
 #include <stdlib.h>
 
 static SysTick_funcallback callbacks[NUMBER_OF_CALLBACKS];
 static uint8_t lastCallBackPos=0;
-
+void callBack (void);
 bool SysTick_Init (void)
 {
-	SysTick->CTRL = 0x00;
-	SysTick->LOAD = 120000000/SYSTICK_ISR_FREQUENCY_HZ - 1;
-	SysTick->VAL = 0x00;
-	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk |
-					SysTick_CTRL_TICKINT_Msk |
-					SysTick_CTRL_ENABLE_Msk;
+	PIT_init();
+	PIT_set_timer (SYSTICK_ISR_FREQUENCY_HZ, 0);
+
 	for(int i=0;i<NUMBER_OF_CALLBACKS;i++){
 		callbacks[i]=NULL;
 	}
-	gpioMode(PIN_DEBUG, OUTPUT);
+	PIT_IRQ (callBack, 0);
 	return true;
 }
 
-__ISR__ SysTick_Handler (void)
+void callBack (void)
 {
-	gpioWrite(PIN_DEBUG, true);
+
 	for(int i=0;i<(lastCallBackPos);i++){
 			if(callbacks[i]!=NULL){
 				((*callbacks[i])());
 			}
 		}
-	gpioWrite(PIN_DEBUG, false);
+
 
 }
 

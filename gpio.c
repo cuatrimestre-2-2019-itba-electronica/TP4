@@ -1,5 +1,6 @@
 #include "gpio.h"
 #include "MK64F12.h"
+#include "cpu.h"
 
 //getPEPS
 //devuelve en el arreglo de char devuelvo en la posicion 0 PE y en la posicion 1 PS
@@ -189,12 +190,19 @@ void set_handler (uint8_t port, uint8_t pin, func_ptr IRQfunc){
 }
 
 void call_handler (uint8_t port) {
+    CPU_SR_ALLOC();
+    CPU_CRITICAL_ENTER();
+    OSIntEnter();                                           /* Tell uC/OS-III that we are starting an ISR             */
+    CPU_CRITICAL_EXIT();
+
 	for (int i = 0; i < 32; i++){
 		if ((PORT_PCR_ISF_MASK & ports[port]->PCR[i])){
 			(*(funcs[port][i]))();
 			ports[port]->PCR[i] |= PORT_PCR_ISF_MASK;
 		}
 	}
+
+	OSIntExit();                                            /* Tell uC/OS-III that we are leaving the ISR             */
 }
 
 bool gpioIRQ (pin_t pin, uint8_t irqMode, pinIrqFun_t irqFun) {
