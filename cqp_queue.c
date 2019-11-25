@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <os.h>
 
 #include "encoder.h"
 #include "config.h"
@@ -25,6 +26,8 @@ static unsigned int push_RELEASE = 0;
 
 static UT_icd cqp_icd = {sizeof(cqp_t), NULL, NULL, NULL};
 
+OS_SEM cqpSem;
+OS_ERR osErr;
 
 typedef struct CQP_QUEUE {
     UT_ringbuffer * CQP_queue;
@@ -51,14 +54,18 @@ bool is_cqp_queue_empty(CQP_QUEUE *self) {
 
 cqp_t get_next_cqp(CQP_QUEUE *self) {
 
-    if(is_cqp_queue_empty(self))
-    {
-        return CQP_N;
-    }
+//    if(is_cqp_queue_empty(self))
+//    {
+//        return CQP_N;
+//    }
 
-    cqp_t cqp = cqp_queue_pop_front(self);
 
-    return cqp;
+    // semaforo hasta que la tarjeta magnetica o el encoder me dejen pasar
+	OSSemPend(&cqpSem,0,OS_OPT_PEND_BLOCKING,0,&osErr);
+
+    cqp_queue_update(self);
+
+    return cqp_queue_pop_front(self);
 }
 
 void cqp_queue__init(CQP_QUEUE * self)
@@ -79,6 +86,8 @@ void cqp_queue__init(CQP_QUEUE * self)
 	encoder_set_callback_CCW(cqp_queue_input_CCW);
 	encoder_set_callback_SW_PRESS(cqp_queue_input_PRESS);
 	encoder_set_callback_SW_RELEASE(cqp_queue_input_RELEASE);
+
+	OSSemCreate(&cqpSem, "CQP sem", 0u, &osErr);
 
 }
 
@@ -147,21 +156,25 @@ cqp_t cqp_queue_pop_front(CQP_QUEUE *self){
 static void cqp_queue_input_CW(){
 	push_CW = 1;
 	timer =  timerStart(TIMER_US2TICKS(DELAY_US));
+	OSSemPost(&cqpSem, OS_OPT_POST_1, &osErr);
 }
 
 static void cqp_queue_input_CCW(){
 	push_CCW = 1;
 	timer =  timerStart(TIMER_US2TICKS(DELAY_US));
+	OSSemPost(&cqpSem, OS_OPT_POST_1, &osErr);
 }
 
 static void cqp_queue_input_PRESS(){
 	push_PRESS = 1;
 	timer =  timerStart(TIMER_US2TICKS(DELAY_US));
+	OSSemPost(&cqpSem, OS_OPT_POST_1, &osErr);
 }
 
 static void cqp_queue_input_RELEASE(){
 	push_RELEASE = 1;
 	timer =  timerStart(TIMER_US2TICKS(DELAY_US));
+	OSSemPost(&cqpSem, OS_OPT_POST_1, &osErr);
 }
 
 

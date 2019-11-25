@@ -198,16 +198,7 @@ static void TaskStart(void *p_arg) {
                     (OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
                     &os_err);
 
-
-
-
-
-
-
-
-
     while (1) {
-        //OSTimeDlyHMSM(0u, 0u, 0u, 1000u, OS_OPT_TIME_HMSM_STRICT, &os_err);
     	OSTimeDlyHMSM(0u, 0u, 0u, 999u, OS_OPT_TIME_HMSM_STRICT, &os_err);
        // LED_G_TOGGLE();
     }
@@ -242,7 +233,6 @@ int main(void) {
 	 OSSchedRoundRobinCfg((CPU_BOOLEAN)1, 0, &err);
  #endif
     OS_CPU_SysTickInit(SystemCoreClock / (uint32_t)OSCfg_TickRate_Hz);
-	// OS_CPU_SysTickInit(120000000 / (uint32_t)OSCfg_TickRate_Hz);
 
     OSTaskCreate(&TaskStartTCB,
                  "App Task Start",

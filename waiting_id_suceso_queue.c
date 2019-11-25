@@ -123,8 +123,8 @@ suceso_t suceso_queue_pop_front(SUCESO_QUEUE *self){
 void suceso_queue_update(SUCESO_QUEUE *self)
 {
     suceso_t suceso;
-    cqp_queue_update(self->cqp_queue);
-    if(!is_cqp_queue_empty(self->cqp_queue))
+//    cqp_queue_update(self->cqp_queue);
+//    if(!is_cqp_queue_empty(self->cqp_queue))
     {
         cqp_t cqp = get_next_cqp(self->cqp_queue);
         for(int i = 0; i < self->suceso_sources_count; i++)
@@ -171,11 +171,12 @@ void delete_suceso_source(SUCESO_QUEUE* self, SUCESO_SOURCE * source){
 
 suceso_t get_next_suceso(SUCESO_QUEUE* self)
 {
-    if( is_suceso_queue_empty(self))
-    {
-        return SUC_N;
-    }
+//    if( is_suceso_queue_empty(self))
+//    {
+//        return SUC_N;
+//    }
 
+    suceso_queue_update(self);
     suceso_t suceso = suceso_queue_pop_front(self);
 
 #ifdef SUCESOS_VERBOSE

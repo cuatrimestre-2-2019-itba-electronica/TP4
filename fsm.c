@@ -70,21 +70,24 @@ bool FSM_cycle(FSM * self)
 {
     bool stop = false;
     if(self->evento_q == NULL){ return false;}
-    evento_queue_update(self->evento_q);
-    if(!is_evento_queue_empty(self->evento_q))
-    {
-        evento_t ev = get_next_event(self->evento_q);
-        estado_t * next_state = estado_dispatch_evento(self->cur_state, ev);
-        if(next_state != NULL) {
-            estado__destroy(self->cur_state);
-            evento_queue__destroy(self->evento_q);
-            self->cur_state = next_state;
-            self->evento_q = estado_create_evento_queue(self->cur_state);
-            if(self->evento_q == NULL || estado_get_type(self->cur_state) == ESTADO_N){
-                stop = true;
-            }
-        }
-    }
+
+//    evento_queue_update(self->evento_q);
+//    if(!is_evento_queue_empty(self->evento_q))
+//    {
+
+    evento_t ev = get_next_event(self->evento_q);
+
+    estado_t * next_state = estado_dispatch_evento(self->cur_state, ev);
+	if(next_state != NULL) {
+		estado__destroy(self->cur_state);
+		evento_queue__destroy(self->evento_q);
+		self->cur_state = next_state;
+		self->evento_q = estado_create_evento_queue(self->cur_state);
+		if(self->evento_q == NULL || estado_get_type(self->cur_state) == ESTADO_N){
+			stop = true;
+		}
+	}
+//    }
     return stop;
 }
 

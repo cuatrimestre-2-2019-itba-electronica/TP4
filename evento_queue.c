@@ -124,8 +124,8 @@ evento_t evento_queue_pop_front(EVENTO_QUEUE *self){
 void evento_queue_update(EVENTO_QUEUE *self)
 {
     evento_t evento;
-    suceso_queue_update(self->suceso_queue);
-    if(!is_suceso_queue_empty(self->suceso_queue))
+//    suceso_queue_update(self->suceso_queue);
+//    if(!is_suceso_queue_empty(self->suceso_queue))
     {
         suceso_t suceso = get_next_suceso(self->suceso_queue);
         for(int i = 0; i < self->evento_sources_count; i++)
@@ -172,11 +172,13 @@ void delete_evento_generator(EVENTO_QUEUE *self, EVENTO_SOURCE *source) {
 }
 
 evento_t get_next_event(EVENTO_QUEUE *self) {
+	evento_queue_update(self);
     evento_t ev;
-    if( is_evento_queue_empty(self)){
-        ev.type = EVENTO_N;
-        return ev;
-    }
+//    if( is_evento_queue_empty(self)){
+//    	//todo: NO DEBERIA LLEGAR HASTA ACA!!!!!!!
+//    	ev.type = EVENTO_N;
+//    return ev;
+//    }
 
     ev = evento_queue_pop_front(self);
 #ifdef EVENTO_VERBOSE

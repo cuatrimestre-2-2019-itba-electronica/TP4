@@ -6,6 +6,7 @@
  */
 
 #include <gpio.h>
+#include <os.h>
 #include "board.h"
 #include "magnetic_band.h"
 #include "gpio.h"
@@ -26,6 +27,8 @@ static uint8_t LCR_control[] = {1,0,0,1};
 static uint8_t card_character = 0;
 static bool error = false;
 
+extern OS_SEM cqpSem;
+extern OS_ERR osErr;
 
 void init_mag_card(void) {
     gpioMode(CARD_ENABLE, INPUT);
@@ -71,6 +74,9 @@ void mag_data (void){
 
 			if (code[counter-2] == ES && error == false){ //si el es final de la informacion se pone como cargado y ya no se vuelve a modificar hasta que se pida esta informacion
 				loaded = true;
+				for(int i = 0; i < 8; i++){
+					OSSemPost(&cqpSem, OS_OPT_POST_1, &osErr);
+				}
 				for(int i = 0; i < WORD_LENGTH-1; i++){
 					if (!(LCR_control[i]%2)){
 						error = true;
