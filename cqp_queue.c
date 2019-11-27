@@ -88,7 +88,6 @@ void cqp_queue__init(CQP_QUEUE * self)
 	encoder_set_callback_SW_RELEASE(cqp_queue_input_RELEASE);
 
 	OSSemCreate(&cqpSem, "CQP sem", 0u, &osErr);
-
 }
 
 CQP_QUEUE *cqp_queue__create() {

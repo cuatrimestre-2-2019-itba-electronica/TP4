@@ -13,12 +13,13 @@
 #include <assert.h>
 //#include <gpio.h>
 
+#include"gateway_handler.h"
 
 #include "fsm.h"
 
 #include "database.h"
 
-
+#include"uart.h"
 
 
 //#include "board.h"
@@ -87,41 +88,41 @@ static CPU_STK Task3Stk[TASK3_STK_SIZE];
 OS_Q colaEv;
 CPU_INT08U buffEv[100];
 
+
+extern OS_MUTEX	mutexGentePorPiso;
+
+
+
 /* Example semaphore */
 static OS_SEM semTest;
+
 
 void App_Init (void);
 void App_Run (void);
 
-
+extern int16_t gentePiso[3];
+extern OS_MUTEX mutexGentePorPiso;
+extern CPU_TS counterTS;
 
 static void Task3(void *p_arg){
-//	(void)p_arg;
-//	OS_ERR p_err;
-//	OS_ERR e;
-//	int i;
-//	void * t;
-//	while(1){
-//		//OSTimeDly (100,OS_OPT_TIME_PERIODIC,&p_err);//100 pulsos de clock (1k)
-//		OSSemPend(&semTest,0,OS_OPT_PEND_BLOCKING,0,&p_err);//o timeout para siempre,
-//		OSSemPend(&semTest,0,OS_OPT_PEND_BLOCKING,0,&p_err);
-//	//	t=OSQPend (&colaEv,0,OS_OPT_PEND_BLOCKING,&buffEv[1],0,&e);
-////		i=*((CPU_INT08U*)t);
-////		switch(i){
-////case 0:
-////	LED_B_TOGGLE();
-////	break;
-////case 1:
-////	LED_R_TOGGLE();
-////	break;
-////case 2:
-////	LED_G_TOGGLE();
-////	break;
-//
-////		}
-//		LED_B_TOGGLE();
-//	}
+	OS_ERR  err;
+	OS_ERR os_err;
+	uint8_t dataRecived[6];
+	uint8_t temp;
+	gateway_sendData(0, gentePiso, 3);//envio los datos a la nube
+	while(1){
 
+
+		for(int i=0;i<5;i++){
+			uartReadMsg(0,&temp,1);
+			dataRecived[i]=temp;
+		}
+		//semaforo uart -> llego el ack
+		OSTimeDlyHMSM(0u, 0u, 30u, 0u, OS_OPT_TIME_HMSM_STRICT, &os_err);//espero los 15 segs minimos
+		OSMutexPend((OS_MUTEX *)&mutexGentePorPiso,(OS_TICK   )0,(OS_OPT    )OS_OPT_PEND_BLOCKING,(CPU_TS   *)&counterTS,(OS_ERR   *)&err);
+		gateway_sendData(0, gentePiso, 3);//envio los datos a la nube
+		OSMutexPost((OS_MUTEX *)&mutexGentePorPiso, (OS_OPT    )OS_OPT_POST_NONE,(OS_ERR   *)&err);
+	}
 }
 
 
@@ -256,10 +257,15 @@ int main(void) {
     }
 }
 
+uart_cfg_t uart_config;
 
 
 void App_Init (void)
 {
+	uart_config.baudrate = 1200;
+	uart_config.parity = odd_parity;
+	uart_config.stopBit = 0;
+
 	timerInit();
 	//_7SegDisp_display_init();
 	_8DigitDisplay_init();
@@ -267,11 +273,12 @@ void App_Init (void)
 	encoder_init();
 	init_mag_card();
 	database_populate();
+
+	uartInit(0, uart_config);
+
 }
 void App_Run (void)
 {
 	FSM * machine  = FSM__create();
 	while(!FSM_cycle(machine));
-
-
 }

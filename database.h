@@ -13,6 +13,7 @@ typedef unsigned int hash_t;
 typedef struct DATABASE_ENTRY {
     hash_t ID_hash;
     hash_t PIN_hash;
+    uint8_t floor;
 } DATABASE_ENTRY;
 
 //false si out of bounds
@@ -26,6 +27,11 @@ int database_get_cursor_pos();
 //Si hay elementos, devuelve el ID_hash del elemento al cual
 //apunta el cursor
 hash_t database_get_ID_hash_at_cursor();
+
+//Si esta vacio, devuelve 0.
+//Si hay elementos, devuelve el floor del elemento al cual
+//apunta el cursor
+hash_t database_get_floor_at_cursor();
 
 //Si esta vacio, devuelve 0.
 //Si hay elementos, devuelve el PIN_hash del elemento al cual
@@ -42,6 +48,11 @@ hash_t database_get_ID_hash_at(unsigned int pos);
 // posicion pos
 hash_t database_get_PIN_hash_at(unsigned int pos);
 
+//Si esta vacio o si la posicion excede a la longitud, devuelve 0.
+//Si hay elementos, devuelve el floor del elemento de la
+// posicion pos
+hash_t database_get_floor_hash_at(unsigned int pos);
+
 //false si out of bounds
 bool database_set_ID_hash_at_cursor(hash_t PIN_hash);
 
@@ -55,7 +66,7 @@ bool database_set_ID_hash_at(hash_t PIN_hash, unsigned int pos);
 bool database_set_PIN_hash_at(hash_t PIN_hash, unsigned int pos);
 
 //no modifica el cursor
-void database_append(hash_t ID_hash, hash_t PIN_hash);
+void database_append(hash_t ID_hash, hash_t PIN_hash, uint8_t floor);
 
 unsigned int database_get_size();
 

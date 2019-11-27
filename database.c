@@ -53,12 +53,27 @@ hash_t database_get_PIN_hash_at_cursor(){
     return database_get_hash_at(false, cursor_pos);
 }
 
+hash_t database_get_floor_at_cursor(){
+    if(cursor_pos < len){
+        return database[cursor_pos].floor;
+    }
+    return 0;
+}
+
+
 hash_t database_get_ID_hash_at(unsigned int pos){
     return database_get_hash_at(true, pos);
 }
 
 hash_t database_get_PIN_hash_at(unsigned int pos){
-    return database_get_hash_at(false, pos);
+    return database_get_hash_at(true, pos);
+}
+
+hash_t database_get_floor_at(unsigned int pos){
+    if(pos < len){
+        return database[pos].floor;
+    }
+    return 0;
 }
 
 bool database_set_ID_hash_at_cursor(hash_t PIN_hash) {
@@ -80,9 +95,10 @@ bool database_set_PIN_hash_at(hash_t PIN_hash, unsigned int pos){
 }
 
 //no modifica el cursor
-void database_append(hash_t ID_hash, hash_t PIN_hash){
+void database_append(hash_t ID_hash, hash_t PIN_hash, uint8_t floor){
     database[len].ID_hash  = ID_hash;
     database[len].PIN_hash = PIN_hash;
+    database[len].floor = floor;
     len++;
     //si estoy haciendo append del primer item, habilito el cursor
     if(cursor_pos == -1){ cursor_pos = 0; }
@@ -147,12 +163,15 @@ static hash_t BKDRHash(const char* str, unsigned int length)
 void database_populate(){
 	uint8_t ID[] = {4,5,9,3,5,4,0,0};
 	uint8_t PIN[] = {1,2,3,4,5};
-	database_append(database_get_hash(ID, 8), database_get_hash(PIN,5));
+	uint8_t floor = 0;
+	database_append(database_get_hash(ID, 8),  database_get_hash(PIN,5),  floor);
 	uint8_t ID1[] = {3,7,6,6,3,6,4,5};
 	uint8_t PIN1[] = {3,2,3,2};
-	database_append(database_get_hash(ID1, 8), database_get_hash(PIN1,4));
+	floor = 1;
+	database_append(database_get_hash(ID1, 8), database_get_hash(PIN1,4), floor);
 	uint8_t ID2[] = {0,1,2,3,4,5,6,7};
 	uint8_t PIN2[] = {5,5,5,5,5};
-	database_append(database_get_hash(ID2, 8), database_get_hash(PIN2,5));
+	floor = 2;
+	database_append(database_get_hash(ID2, 8), database_get_hash(PIN2,5), floor);
 }
 

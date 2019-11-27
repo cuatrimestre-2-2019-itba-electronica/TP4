@@ -8,7 +8,7 @@
  ******************************************************************************/
 
 #include "estados.h"
-
+#include  "os.h"
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -97,11 +97,16 @@ typedef union estado_t{
     estado_waiting_PIN_t waiting_PIN;
     estado_got_access_t got_access;
     estado_editing_pin_t editing_PIN;
-}estado_t;
+} estado_t;
 
 /*******************************************************************************
  * VARIABLES WITH GLOBAL SCOPE
  ******************************************************************************/
+
+int16_t  gentePiso[3] = {0, 0, 0};
+OS_MUTEX mutexGentePorPiso;
+CPU_TS counterTS;
+OS_ERR errors;
 
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
@@ -408,6 +413,9 @@ static estado_t * est_waiting_PIN_ev_cor_num_input(evento_t * ev){
     _8DigitDisplay_reset();
 	_3LedDisp_setLed(0, true);
 	_7SegDisp_clearDisplay();
+	OSMutexPend((OS_MUTEX *)& mutexGentePorPiso,(OS_TICK   )0,(OS_OPT    )OS_OPT_PEND_BLOCKING,(CPU_TS   *)&counterTS,(OS_ERR   *)&errors);
+	gentePiso[database_get_floor_at_cursor()]++;
+	OSMutexPost((OS_MUTEX *)&mutexGentePorPiso, (OS_OPT    )OS_OPT_POST_NONE,(OS_ERR   *)&errors);
 	return estado__create(EST_GOT_ACCESS_TYPE, NULL);
 }
 
