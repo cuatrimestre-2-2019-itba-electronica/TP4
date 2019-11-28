@@ -271,3 +271,7 @@ void UART0_RX_TX_IRQHandler (void)
 uint8_t check_UART_ID(uint8_t id){
 	return (id>UART_CANT_IDS || id<0) ? 0 : id;
 }
+
+int uartCharToRead(uint8_t id){
+	return N_RX;
+}
