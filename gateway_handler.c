@@ -37,3 +37,29 @@ void gateway_sendData(uint8_t uart_id, uint16_t * num, uint8_t length){
 
 	uartWriteMsg(uart_id, uartwrite, 12);
 }
+
+gateway_data_status gateway_checkReceivedData(uint8_t uart_id){
+	char uartread[6];
+	uint8_t curr = COM_HEADER_SIZE;
+
+	if (uartCharToRead(uart_id) > 5) {
+		uartReadMsg(uart_id, uartread, 6);
+
+		for(uint8_t i; i < COM_HEADER_SIZE; i++){
+			if((uint8_t) uartread[i] != com_header[i])
+				return wrongData;
+		}
+
+		if((uint8_t) uartread[curr++] != 0x01)
+			return wrongData;
+
+		if((uint8_t) uartread[curr] == 0x81)
+			return sendDataOk;
+		else if((uint8_t) uartread[curr] == 0xC1)
+			return sendDataFail;
+		else
+			return wrongData;
+	}
+
+	else return noData;
+}
