@@ -10,7 +10,7 @@
 #include "waiting_id_suceso_sources.h"
 #include "cqp_queue.h"
 #include "circular_buffer/utringbuffer.h"
-
+#include "3LedDsip.h"
 
 
 #define SUCESO_SOURCES_COUNT_MAX 20
@@ -182,6 +182,11 @@ suceso_t get_next_suceso(SUCESO_QUEUE* self)
 #ifdef SUCESOS_VERBOSE
     printf("*suceso: %s* \n", suc_debug_codes[suceso]);
 #endif
+
+    if(suceso == SUC_DELAY){
+    	_3LedDisp_setLed(1, true);
+    }
+
     return suceso;
 }
 

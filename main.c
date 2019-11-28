@@ -185,9 +185,9 @@ static void TaskStart(void *p_arg) {
 
 
     /* Create Task3 */
-       OSTaskCreate(&Task3TCB, 			//tcb
+       OSTaskCreate(&Task3TCB, 				//tcb
                     "Task 3",				//name
-                     Task3,				//func
+                     Task3,					//func
                      0u,					//arg
                      TASK3_PRIO,			//prio
                     &Task3Stk[0u],			//stack
@@ -216,17 +216,7 @@ int main(void) {
 
     App_Init(); /* Program-specific setup */
 
-//    /* RGB LED */
-//    SIM->SCGC5 |= (SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTE_MASK);
-//    LED_B_PORT->PCR[LED_B_PIN] = PORT_PCR_MUX(1);
-//    LED_G_PORT->PCR[LED_G_PIN] = PORT_PCR_MUX(1);
-//    LED_R_PORT->PCR[LED_R_PIN] = PORT_PCR_MUX(1);
-//    LED_B_GPIO->PDDR |= (1 << LED_B_PIN);
-//    LED_G_GPIO->PDDR |= (1 << LED_G_PIN);
-//    LED_R_GPIO->PDDR |= (1 << LED_R_PIN);
-//    LED_B_GPIO->PSOR |= (1 << LED_B_PIN);
-//    LED_G_GPIO->PSOR |= (1 << LED_G_PIN);
-//    LED_R_GPIO->PSOR |= (1 << LED_R_PIN);
+
 
     OSInit(&err);
  #if OS_CFG_SCHED_ROUND_ROBIN_EN > 0u
@@ -266,7 +256,7 @@ void App_Init (void)
 	uart_config.parity = odd_parity;
 	uart_config.stopBit = 0;
 
-	timerInit();
+	SysTick_Init();
 	//_7SegDisp_display_init();
 	_8DigitDisplay_init();
 	_3LedDisp_dispInit();

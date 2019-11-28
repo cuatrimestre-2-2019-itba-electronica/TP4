@@ -14,7 +14,9 @@
 #define CQP_QUEUE_SIZE 30
 #define DELAY_US 1000000
 
-time_t timer;
+
+static int tickCount = 1;
+static int delaysElapsed = 0;
 
 static unsigned int front = 0;
 static unsigned int cqp_queue_size = 0;
@@ -46,7 +48,7 @@ static void cqp_queue_input_CCW();
 static void cqp_queue_input_PRESS();
 static void cqp_queue_input_RELEASE();
 
-
+void cqp_cb();
 
 bool is_cqp_queue_empty(CQP_QUEUE *self) {
     return !self->cqp_queue_size;
@@ -71,8 +73,11 @@ cqp_t get_next_cqp(CQP_QUEUE *self) {
 void cqp_queue__init(CQP_QUEUE * self)
 {
 	if(self == NULL){ return; }
-
-	timerInit();
+	static appended_cb = false;
+	if(!appended_cb){
+		SysTick_append(cqp_cb);
+		appended_cb = true;
+	}
 
 	//Para el ring buffer
 	//creacion del buffer circular de sucesos (para la salida)
@@ -95,8 +100,20 @@ CQP_QUEUE *cqp_queue__create() {
     return &q;
 }
 
-void cqp_queue__destroy(CQP_QUEUE *self) {
 
+void cqp_queue__reset(CQP_QUEUE * self)
+{
+	if(self == NULL){ return; }
+	utringbuffer_free(self->CQP_queue);
+}
+
+
+
+void cqp_queue__destroy(CQP_QUEUE *self) {
+    if (self) {
+        cqp_queue__reset(self);
+        free(self);
+    }
 }
 
 void cqp_queue_update(CQP_QUEUE *self) {
@@ -107,7 +124,6 @@ void cqp_queue_update(CQP_QUEUE *self) {
     	} else {
     		cqp_queue_push_back(&q, (cqp_t) data);
     	}
-    	timer =  timerStart(TIMER_US2TICKS(DELAY_US));
     }
     if(push_CW){
 		cqp_queue_push_back(&q, PASA_RIGHT);
@@ -125,10 +141,11 @@ void cqp_queue_update(CQP_QUEUE *self) {
 		cqp_queue_push_back(&q, PASA_RELEASE);
     	push_RELEASE = 0;
     }
-    if(timerExpired(timer)){
+    if(delaysElapsed){
+    	delaysElapsed--;
     	cqp_queue_push_back(self, PASA_DELAY);
-    	timer = timerStart(TIMER_US2TICKS(DELAY_US));
     }
+	tickCount = 1;
 }
 
 
@@ -154,26 +171,30 @@ cqp_t cqp_queue_pop_front(CQP_QUEUE *self){
 
 static void cqp_queue_input_CW(){
 	push_CW = 1;
-	timer =  timerStart(TIMER_US2TICKS(DELAY_US));
 	OSSemPost(&cqpSem, OS_OPT_POST_1, &osErr);
 }
 
 static void cqp_queue_input_CCW(){
 	push_CCW = 1;
-	timer =  timerStart(TIMER_US2TICKS(DELAY_US));
 	OSSemPost(&cqpSem, OS_OPT_POST_1, &osErr);
 }
 
 static void cqp_queue_input_PRESS(){
 	push_PRESS = 1;
-	timer =  timerStart(TIMER_US2TICKS(DELAY_US));
 	OSSemPost(&cqpSem, OS_OPT_POST_1, &osErr);
 }
 
 static void cqp_queue_input_RELEASE(){
 	push_RELEASE = 1;
-	timer =  timerStart(TIMER_US2TICKS(DELAY_US));
 	OSSemPost(&cqpSem, OS_OPT_POST_1, &osErr);
 }
 
 
+void cqp_cb()
+{
+	tickCount++;
+	if(!(tickCount %= 20000)){
+		OSSemPost(&cqpSem, OS_OPT_POST_1, &osErr);
+		delaysElapsed++;
+	}
+}

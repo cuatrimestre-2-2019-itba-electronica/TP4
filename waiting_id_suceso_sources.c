@@ -379,6 +379,8 @@ void suceso_source__init(SUCESO_SOURCE* self, SUCESO_SOURCE_TYPE type)
         case SUCESO_SOURCE_GET_DELAY_TYPE:
             self->any.fun = (get_suceso_fun_p)get_delay_fun;
             self->get_delay.data.max_count = DELAY_COUNT;
+            self->get_delay.data.count = 0;
+            self->get_delay.data.pressed = false;
             break;
         default:
             self->type = SUCESO_SOURCE_TYPE_N;

@@ -386,6 +386,7 @@ static void estado__reset(estado_t * self){
 //PARA LOS ESTADOS QUE TENGAN TIMEOUT:
 static estado_t * est_xx_ev_timeout(evento_t * ev){
     _8DigitDisplay_reset();
+
     return estado__create(EST_WAITING_ID_TYPE, NULL);
 }
 
