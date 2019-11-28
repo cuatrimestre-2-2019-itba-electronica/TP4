@@ -65,5 +65,6 @@ uint8_t uartReadMsg(uint8_t id, char* msg, uint8_t cant);
 */
 uint8_t uartWriteMsg(uint8_t id, char* msg, uint8_t cant);
 
+int uartCharToRead(uint8_t id);
 
 #endif // _UART_H_
